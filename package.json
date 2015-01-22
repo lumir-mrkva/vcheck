@@ -4,6 +4,8 @@
   "description": "ERROR: No README.md file found!",
   "main": "check.js",
   "dependencies": {
+    "jquery": "^2.1.3",
+    "jsdom": "^3.0.2",
     "node-hipchat": "~0.4.5",
     "nodemailer": "~1.3.0"
   },
@@ -11,7 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "",
+  "repository": "https://github.com/lumir-mrkva/vcheck.git",
   "author": "",
   "license": "BSD"
 }
