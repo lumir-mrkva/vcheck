@@ -19,7 +19,20 @@ function loop() {
 
 function check() {
 	pages.forEach(function(item) {
-		http.get(item.url, function(res) {
+		var options;
+		if (config.proxy) {
+			options = {
+				host: config.proxy.host,
+				port: config.proxy.port,
+				path: item.url,
+				headers: {
+					Host: item.url
+				}
+			}
+		} else {
+			options = item.url;
+		}
+		http.get(options, function(res) {
 			res.on('data', function (chunk) {
 			  	data = ''+ chunk;
 			  	if (res.statusCode === 200) {

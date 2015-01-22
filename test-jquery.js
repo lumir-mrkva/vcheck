@@ -1,9 +1,13 @@
 var jsdom = require('jsdom'),
 	jquery = require('jquery');
 
-jsdom.env('http://store.steampowered.com/', function (err, context) {
+jsdom.env('http://pred-cic-wbl.vs.csin.cz/diagnostic/about', function (err, context) {
 	if (err) console.log(err);
 
 	var $ = jquery(context);
-	console.log($('#footer_text div').first().text());
-})
+	console.log(transform($));
+});
+
+var transform = function($) {
+	return $('.panel-body').first().text().trim().replace(/\n\ */gi,',');
+}

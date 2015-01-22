@@ -2,10 +2,14 @@ var emailSubs = "lumir.mrkva@topmonks.com"
 
 var config = {
 	interval: 15,
+	/*proxy: {
+		host: 'localhost',
+		port: 5860
+	},*/
 	pages: [
 			{
 				name: 'production',
-				url: 'http://www.csas.cz/webapi/api/v1/version',
+				url: 'http://www-csas.csint.cz/webapi/api/v1/version',
 		        email: emailSubs
 			}
 		],
