@@ -1,7 +1,8 @@
 var hipchat = require('node-hipchat'),
 	http = require('http'),
     mailer = require('./mailer.js'),
-    config = require('./config.js');
+    config = require('./config.js'),
+    transform = require('./transform.js');
 
 var HC = new hipchat(config.notifications.hipchat.token),
 	pages = config.pages;
@@ -33,25 +34,37 @@ function check() {
 			options = item.url;
 		}
 		http.get(options, function(res) {
+            var data = '';
 			res.on('data', function (chunk) {
-			  	data = ''+ chunk;
-			  	if (res.statusCode === 200) {
-				  	if (!item.data) {
-				  		console.log(item.name + ' initial version  ' + data);
-                        item.data = data;
-                    }
-				  	if (item.data !== data) {
-				  		console.log(item.name + ' ' + data);
-				  		item.data = data;
-				  		postUpdate(item);
-				  	}
-			 	}
+			  	data = data + chunk;
 			});
+            res.on('end', function () {
+                var compare = function(data) {
+                    if (!item.data) {
+                        console.log(item.name + ' initial version  ' + data);
+                        item.data = data;
+                        if (process.argv[2] === 'test') postUpdate(data);
+                    }
+                    if (item.data !== data) {
+                        console.log(item.name + ' ' + data);
+                        item.data = data;
+                        postUpdate(item);
+                    }
+                };
+                if (res.statusCode === 200) {
+                    if (item.transform) {
+                        transform(data, item.transform, compare);
+                    } else {
+                        compare(data);
+                    }
+                }
+            });
 		}).on('error', function(e) {
 			console.log('error requesting ' + item.name + ': ' + e.message);
 		});	
 	});
 }
+
 
 
 function postUpdate(item) {

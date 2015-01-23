@@ -1,4 +1,6 @@
-var emailSubs = "lumir.mrkva@topmonks.com"
+var wblTransform = function($) {
+    return $('.panel-body').first().text().trim().replace(/\n\ */gi,', ');
+};
 
 var config = {
 	interval: 15,
@@ -7,12 +9,20 @@ var config = {
 		port: 5860
 	},*/
 	pages: [
-			{
-				name: 'production',
-				url: 'http://www-csas.csint.cz/webapi/api/v1/version',
-		        email: emailSubs
-			}
-		],
+        {
+            name: 'wbl preprod',
+            url: 'http://pred-cic-wbl.vs.csin.cz/diagnostic/about',
+            transform: wblTransform
+        },{
+            name: 'wbl st2',
+            url: 'http://st2-cic-wbl.vs.csin.cz:48400/diagnostic/about',
+            transform: wblTransform
+        },{
+            name: 'wbl st1',
+            url: 'http://st1-cic-wbl.vs.csin.cz:48300/diagnostic/about',
+            transform: wblTransform
+        }
+	],
 	notifications: {
 		hipchat: {
 			token: process.env.HIPCHAT_TOKEN,
@@ -26,6 +36,6 @@ var config = {
 		    }
 		}
 	}
-}
+};
 
 module.exports = config;
