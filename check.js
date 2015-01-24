@@ -4,7 +4,10 @@ var hipchat = require('node-hipchat'),
     config = require('./config.js'),
     transform = require('./transform.js');
 
-var HC = new hipchat(config.notifications.hipchat.token),
+var HC = new hipchat({
+		apikey: config.notifications.hipchat.token,
+		proxy: config.proxy
+	}),
 	pages = config.pages;
 
 console.log('starting vcheck');
@@ -43,7 +46,7 @@ function check() {
                     if (!item.data) {
                         console.log(item.name + ' initial version  ' + data);
                         item.data = data;
-                        if (process.argv[2] === 'test') postUpdate(data);
+                        if (process.argv[2] === 'test') postUpdate(item);
                     }
                     if (item.data !== data) {
                         console.log(item.name + ' ' + data);
@@ -65,17 +68,16 @@ function check() {
 	});
 }
 
-
-
 function postUpdate(item) {
+	var room = item.room ? item.room : config.notifications.hipchat.room;
 	HC.postMessage({
-		room: item.room ? item.room : config.notifications.hipchat.room,
+		room: room,
 		from: item.name,
 		message: '/code ' + item.data,
 		message_format: 'text'
-	}, function(data) {
-        if (!data || data.status !== 'sent') {
-        	console.log(data);
+	}, function(res, data) {
+        if (!res || res.status !== 'sent') {
+        	console.log('notification to hipchat room ' + room + ' failed: ' + data);
         }
 	});
     if (item.email) {
