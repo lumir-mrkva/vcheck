@@ -9,6 +9,7 @@ var config = {
             name: 'steam',
             url: 'http://store.steampowered.com',
             room: 'Playground',
+            email: 'lumir.mrkva@topmonks.com',
             transform: function($) {
                 return $('#footer_text div').first().text();
             }
@@ -20,6 +21,10 @@ var config = {
             room: 'WebApi'
         },
         email: {
+            from: 'vcheck <lumir.mrkva@topmonks.com>',
+            subject: function(page) {
+                return 'new version of ' + page.name + ' has been deployed';
+            },
             service: 'Gmail',
             auth: {
                 user: 'lumir.mrkva@topmonks.com',

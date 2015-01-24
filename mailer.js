@@ -2,17 +2,18 @@ var nodemailer = require('nodemailer'),
     config = require('./config.js')
 
 exports.send = function(to, subject, body) {
-    if (!config.notifications.email) {
+    var email = config.notifications.email;
+    if (!email) {
         console.log('can not send email - notifications email not configured');
         return;
     }
     var options = {
-        from: 'vcheck',
+        from: email.from,
         to: to,
         subject: subject,
         text: body
     },
-    transporter = nodemailer.createTransport(config.notifications.email);
+    transporter = nodemailer.createTransport(email);
     transporter.sendMail(options, function(error, info) {
         if(error) {
             console.log('sending email failed', error);

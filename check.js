@@ -80,7 +80,8 @@ function postUpdate(item) {
             console.log('notification to hipchat room ' + room + ' failed: ' + data);
         }
     });
+    var email = config.notifications.email;
     if (item.email) {
-       mailer.send(item.email, 'webapi ' + item.name + ' has been deployed', item.data);  
+       mailer.send(item.email, email && email.subject ? email.subject(item) : item.name, item.data);  
     }
 }
