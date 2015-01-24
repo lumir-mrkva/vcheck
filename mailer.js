@@ -2,7 +2,7 @@ var nodemailer = require('nodemailer'),
     config = require('./config.js')
 
 exports.send = function(to, subject, body) {
-    if (config.notifications.email) {
+    if (!config.notifications.email) {
         console.log('can not send email - notifications email not configured');
         return;
     }
