@@ -6,7 +6,7 @@
   "dependencies": {
     "jquery": "^2.1.3",
     "jsdom": "^3.0.2",
-    "node-hipchat": "git://github.com/lumir-mrkva/node-hipchat.git#newer",
+    "node-hipchat": "lumir-mrkva/node-hipchat.git#newer",
     "nodemailer": "~1.3.0"
   },
   "devDependencies": {},
