@@ -44,12 +44,12 @@ function check() {
             res.on('end', function () {
                 var compare = function(data) {
                     if (!item.data) {
-                        console.log(item.name + ' initial version  ' + data);
+                        console.log(item.name + ' initial version: ' + data);
                         item.data = data;
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
                     if (item.data !== data) {
-                        console.log(item.name + ' ' + data);
+                        console.log(item.name + ': ' + data);
                         item.data = data;
                         postUpdate(item);
                     }
@@ -69,14 +69,13 @@ function check() {
 }
 
 function postUpdate(item) {
-    var room = item.room ? item.room : config.notifications.hipchat.room;
-    var rooms = [].concat(room);
+    var rooms = [].concat(item.room ? item.room : config.notifications.hipchat.room);
     rooms.forEach(function(room) {
 	    HC.postMessage({
 	        room: room,
 	        from: item.name,
-	        message: '/code ' + item.data,
-	        message_format: 'text'
+	        message: item.print ? item.print() : item.data,
+	        message_format: 'html'
 	    }, function(res, data) {
 	        if (!res || res.status !== 'sent') {
 	            console.log('notification to hipchat room ' + room + ' failed: ' + data);
@@ -84,7 +83,8 @@ function postUpdate(item) {
 	    });
     });
     var email = config.notifications.email;
-    if (item.email) {
-       mailer.send(item.email, email && email.subject ? email.subject(item) : item.name, item.data);  
+    if (item.email && email) {
+        var subject = item.subject ? item.subject(item) : email.subject ? email.subject.bind(item)() : item.name
+        mailer.send(item.email, subject, item.data);  
     }
 }
