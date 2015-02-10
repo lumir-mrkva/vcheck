@@ -89,6 +89,6 @@ function postUpdate(item) {
 
     if (item.email && email) {
         var subject = item.subject ? item.subject(item) : email.subject ? email.subject.bind(item)() : item.name
-        mailer.send(item.email, subject, item.data);  
+        mailer.send(item.email, subject, message);  
     }
 }
