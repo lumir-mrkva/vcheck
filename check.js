@@ -70,15 +70,18 @@ function check() {
 
 function postUpdate(item) {
     var room = item.room ? item.room : config.notifications.hipchat.room;
-    HC.postMessage({
-        room: room,
-        from: item.name,
-        message: '/code ' + item.data,
-        message_format: 'text'
-    }, function(res, data) {
-        if (!res || res.status !== 'sent') {
-            console.log('notification to hipchat room ' + room + ' failed: ' + data);
-        }
+    var rooms = [].concat(room);
+    rooms.forEach(function(room) {
+	    HC.postMessage({
+	        room: room,
+	        from: item.name,
+	        message: '/code ' + item.data,
+	        message_format: 'text'
+	    }, function(res, data) {
+	        if (!res || res.status !== 'sent') {
+	            console.log('notification to hipchat room ' + room + ' failed: ' + data);
+	        }
+	    });
     });
     var email = config.notifications.email;
     if (item.email) {
