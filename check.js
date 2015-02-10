@@ -69,12 +69,16 @@ function check() {
 }
 
 function postUpdate(item) {
-    var rooms = [].concat(item.room ? item.room : config.notifications.hipchat.room);
+    var conf = config.notifications,
+        email = conf.email,
+        message = item.print ? item.print() : conf.print ? conf.print.bind(item)() : item.data,
+        rooms = [].concat(item.room ? item.room : conf.hipchat.room);
+    
     rooms.forEach(function(room) {
 	    HC.postMessage({
 	        room: room,
 	        from: item.name,
-	        message: item.print ? item.print() : item.data,
+	        message: message,
 	        message_format: 'html'
 	    }, function(res, data) {
 	        if (!res || res.status !== 'sent') {
@@ -82,7 +86,7 @@ function postUpdate(item) {
 	        }
 	    });
     });
-    var email = config.notifications.email;
+
     if (item.email && email) {
         var subject = item.subject ? item.subject(item) : email.subject ? email.subject.bind(item)() : item.name
         mailer.send(item.email, subject, item.data);  
