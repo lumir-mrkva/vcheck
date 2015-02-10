@@ -11,7 +11,7 @@ exports.send = function(to, subject, body) {
         from: email.from,
         to: to,
         subject: subject,
-        text: body
+        html: body
     },
     transporter = nodemailer.createTransport(email);
     transporter.sendMail(options, function(error, info) {
