@@ -1,5 +1,6 @@
 var hipchat = require('node-hipchat'),
     http = require('http'),
+    https = require('https'),
     mailer = require('./mailer.js'),
     config = require('./config.js'),
     transform = require('./transform.js');
@@ -23,7 +24,7 @@ function loop() {
 
 function check() {
     pages.forEach(function(item) {
-        var options;
+        var options, protocol;
         if (config.proxy) {
             options = {
                 host: config.proxy.host,
@@ -36,7 +37,8 @@ function check() {
         } else {
             options = item.url;
         }
-        http.get(options, function(res) {
+        protocol = item.url.indexOf('https:') === 0 ? https : http;
+        protocol.get(options, function(res) {
             var data = '';
             res.on('data', function (chunk) {
                 data = data + chunk;
