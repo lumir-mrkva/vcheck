@@ -50,7 +50,7 @@ function check() {
                         item.data = data;
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
-                    if (item.data !== data) {
+                    if (!data !== null && item.data !== data) {
                         console.log(item.name + ': ' + data);
                         item.data = data;
                         postUpdate(item);
