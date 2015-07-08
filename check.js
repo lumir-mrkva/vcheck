@@ -42,12 +42,12 @@ function check() {
             res.on('end', function () {
                 var compare = function(data) {
                     if (!item.data) {
-                        console.log(item.name + ' initial version: ' + data);
+                        console.log(item.name + ' initial version: ' + data.eclipse(100));
                         item.data = data;
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
                     if (!data !== null && item.data !== data) {
-                        console.log(item.name + ': ' + data);
+                        console.log(item.name + ': ' + data.eclipse(100));
                         item.data = data;
                         postUpdate(item);
                     }
@@ -101,4 +101,10 @@ function postUpdate(item) {
         var subject = item.subject ? item.subject(item) : email.subject ? email.subject.bind(item)() : item.name
         mailer.send(item.email, subject, message);  
     }
+}
+
+String.prototype.eclipse = function(length) {
+    if (this.length > length) 
+        return this.substr(0, length) + '...';
+    return this.toString();
 }
