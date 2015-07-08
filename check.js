@@ -5,11 +5,7 @@ var hipchat = require('node-hipchat'),
     config = require('./config.js'),
     transform = require('./transform.js');
 
-var HC = new hipchat({
-        apikey: config.notifications.hipchat.token,
-        proxy: config.proxy
-    }),
-    pages = config.pages;
+var pages = config.pages;
 
 console.log('starting vcheck');
 check();
@@ -70,6 +66,13 @@ function check() {
     });
 }
 
+function hipchatClient(token) {
+    return new hipchat({
+        apikey: token,
+        proxy: config.proxy
+    });
+}
+
 function postUpdate(item) {
     var conf = config.notifications,
         email = conf.email,
@@ -77,7 +80,12 @@ function postUpdate(item) {
         rooms = [].concat(item.room ? item.room : conf.hipchat.room);
     
     rooms.forEach(function(room) {
-	    HC.postMessage({
+        var token = config.notifications.hipchat.token;
+        if (room.token) {
+            token = room.token;
+            room = room.id;
+        }
+	    hipchatClient(token).postMessage({
 	        room: room,
 	        from: item.name,
 	        message: message,
