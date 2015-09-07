@@ -2,6 +2,7 @@ var hipchat = require('node-hipchat'),
     http = require('http'),
     https = require('https'),
     mailer = require('./mailer.js'),
+    slacker = require('./slacker.js'),
     config = require('./config.js'),
     transform = require('./transform.js');
 
@@ -42,12 +43,12 @@ function check() {
             res.on('end', function () {
                 var compare = function(data) {
                     if (!item.data) {
-                        console.log(item.name + ' initial version: ' + data.eclipse(100));
+                        console.log(item.name + ' initial version: ' + data.eclipse(500));
                         item.data = data;
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
                     if (!data !== null && item.data !== data) {
-                        console.log(item.name + ': ' + data.eclipse(100));
+                        console.log(item.name + ': ' + data.eclipse(500));
                         item.data = data;
                         postUpdate(item);
                     }
@@ -78,10 +79,11 @@ function postUpdate(item) {
         email = conf.email,
         message = item.print ? item.print() : conf.print ? conf.print.bind(item)() : item.data,
         rooms = [].concat(item.room ? item.room : conf.hipchat.room);
+        slacks = [].concat(item.slack);
     
     rooms.forEach(function(room) {
         var token = config.notifications.hipchat.token;
-        if (room.token) {
+        if (room instanceof Object && room.token) {
             token = room.token;
             room = room.id;
         }
@@ -95,6 +97,9 @@ function postUpdate(item) {
 	            console.log('notification to hipchat room ' + room + ' failed: ' + data);
 	        }
 	    });
+    });
+    slacks.forEach(function(options) {
+        slacker.send(item.name, message, options);
     });
 
     if (item.email && email) {
