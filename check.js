@@ -42,12 +42,12 @@ function check() {
             });
             res.on('end', function () {
                 var compare = function(data) {
-                    if (!item.data) {
+                    if (!item.data && data != null) {
                         console.log(item.name + ' initial version: ' + data.eclipse(500));
                         item.data = data;
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
-                    if (!data !== null && item.data !== data) {
+                    if (data !== null && item.data !== data) {
                         console.log(item.name + ': ' + data.eclipse(500));
                         item.data = data;
                         postUpdate(item);
