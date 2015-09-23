@@ -99,7 +99,7 @@ function postUpdate(item) {
 	    });
     });
     slacks.forEach(function(options) {
-        slacker.send(item.name, message, options);
+        if (options) slacker.send(item.name, message, options);
     });
 
     if (item.email && email) {
