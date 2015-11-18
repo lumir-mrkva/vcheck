@@ -1,7 +1,9 @@
 var hipchat = require('node-hipchat'),
     http = require('http'),
     https = require('https'),
-    mailer = require('./mailer.js'),
+    moment = require('moment');
+
+var mailer = require('./mailer.js'),
     slacker = require('./slacker.js'),
     config = require('./config.js'),
     transform = require('./transform.js');
@@ -44,15 +46,21 @@ function check() {
                 var compare = function(data) {
                     if (!item.data && data != null) {
                         console.log(item.name + ' initial version: ' + data.eclipse(500));
+                        item.previous = null;
                         item.data = data;
+                        item.changed = moment();
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
-                    if (data !== null && item.data !== data) {
+                    if (data !== null && item.data !== data
+                      && !(item.previous === data && moment().subtract(30, 'm').isBefore(item.changed))) {
                         console.log(item.name + ': ' + data.eclipse(500));
+                        item.previous = item.data;
                         item.data = data;
+                        item.changed = moment();
                         postUpdate(item);
                     }
                 };
+
                 if (res.statusCode === 200) {
                     if (item.transform) {
                         transform(data, item.transform, compare);
@@ -63,7 +71,7 @@ function check() {
             });
         }).on('error', function(e) {
             console.log('error requesting ' + item.name + ': ' + e.message);
-        }); 
+        });
     });
 }
 
@@ -78,9 +86,9 @@ function postUpdate(item) {
     var conf = config.notifications,
         email = conf.email,
         message = item.print ? item.print() : conf.print ? conf.print.bind(item)() : item.data,
-        rooms = [].concat(item.room ? item.room : conf.hipchat.room);
+        rooms = [].concat(item.room ? item.room : conf.hipchat ? conf.hipchat.room : []);
         slacks = [].concat(item.slack);
-    
+
     rooms.forEach(function(room) {
         var token = config.notifications.hipchat.token;
         if (room instanceof Object && room.token) {
@@ -104,12 +112,12 @@ function postUpdate(item) {
 
     if (item.email && email) {
         var subject = item.subject ? item.subject(item) : email.subject ? email.subject.bind(item)() : item.name
-        mailer.send(item.email, subject, message);  
+        mailer.send(item.email, subject, message);
     }
 }
 
 String.prototype.eclipse = function(length) {
-    if (this.length > length) 
+    if (this.length > length)
         return this.substr(0, length) + '...';
     return this.toString();
 }
