@@ -12,14 +12,7 @@ var pages = config.pages;
 
 console.log('starting vcheck');
 check();
-loop();
-
-function loop() {
-    setTimeout(function() {
-        check();
-        loop();
-    }, config.interval * 1000);
-}
+setInterval(check, config.interval * 1000);
 
 function check() {
     pages.forEach(function(item) {
@@ -36,6 +29,10 @@ function check() {
         } else {
             options = item.url;
         }
+        if (!item.url) {
+            console.error('missing url in ' + item.name);
+            return;
+        }
         protocol = item.url.indexOf('https:') === 0 ? https : http;
         protocol.get(options, function(res) {
             var data = '';
@@ -44,14 +41,14 @@ function check() {
             });
             res.on('end', function () {
                 var compare = function(data) {
-                    if (!item.data && data != null) {
+                    if (!item.data && data != null && data !== 'null') {
                         console.log(item.name + ' initial version: ' + data.eclipse(500));
                         item.previous = null;
                         item.data = data;
                         item.changed = moment();
                         if (process.argv[2] === 'test') postUpdate(item);
                     }
-                    if (data !== null && item.data !== data
+                    if (data !== null && data !== 'null' && item.data !== data
                       && !(item.previous === data && moment().subtract(30, 'm').isBefore(item.changed))) {
                         console.log(item.name + ': ' + data.eclipse(500));
                         item.previous = item.data;
@@ -70,7 +67,7 @@ function check() {
                 }
             });
         }).on('error', function(e) {
-            console.log('error requesting ' + item.name + ': ' + e.message);
+            console.error('error requesting ' + item.name + ': ' + e.message);
         });
     });
 }
