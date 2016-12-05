@@ -1,4 +1,5 @@
 var hipchat = require('node-hipchat'),
+    url = require('url'),
     http = require('http'),
     https = require('https'),
     moment = require('moment');
@@ -27,7 +28,10 @@ function check() {
                 }
             }
         } else {
-            options = item.url;
+            options = url.parse(item.url);
+        }
+        if (item.headers) {
+            options.headers = item.headers;
         }
         if (!item.url) {
             console.error('missing url in ' + item.name);
@@ -64,6 +68,8 @@ function check() {
                     } else {
                         compare(data);
                     }
+                } else {
+                    console.error('error requesting ' + item.name, data);
                 }
             });
         }).on('error', function(e) {
@@ -80,7 +86,7 @@ function hipchatClient(token) {
 }
 
 function postUpdate(item) {
-    var conf = config.notifications,
+    var conf = config.notifications || {},
         email = conf.email,
         message = item.print ? item.print() : conf.print ? conf.print.bind(item)() : item.data,
         rooms = [].concat(item.room ? item.room : conf.hipchat ? conf.hipchat.room : []);
